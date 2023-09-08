@@ -11,5 +11,7 @@ public class CollisionCheck {
     
     public void checkTile(Entity entity){
         int nb;
+        // troi oi la troi
+        
     }
 }
