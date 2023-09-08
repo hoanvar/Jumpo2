@@ -134,7 +134,7 @@ public class Player extends Entity {
       
    }
    private boolean isGrounded(){
-       int bns;
+       int bns=1231221;
        return true;
    }
 }
