@@ -5,6 +5,7 @@ import KeyBoardInPut.KeyBoardInPut;
 import Manager.GamePanel;
 import Tool.Tool;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
@@ -14,7 +15,9 @@ public class Player extends Entity {
     KeyBoardInPut keyBoardInPut = new KeyBoardInPut();
     
     private int energy;
-    private int speed;
+    private int jumpSpeed;
+    private BufferedImage lastImage;
+    private boolean isJumping;
     
     public Player (GamePanel gamePanel, KeyBoardInPut keyBoardInPut){
         this.gamePanel = gamePanel;
@@ -28,13 +31,15 @@ public class Player extends Entity {
        mapY = 10 * gamePanel.tileSize;
        direction = "right";
        energy = 0;
-       speed = 4;
+       entityWalkSpeed = 2;
+       jumpSpeed = 3;
+       isJumping = false;
    }
    
    private void getPlayerImage(){
        try{
-            left = ImageIO.read(getClass().getResourceAsStream("/Resource/PlayerImage/left.png"));
-            right = ImageIO.read(getClass().getResourceAsStream("/Resource/PlayerImage/right.png"));
+            left = ImageIO.read(getClass().getResourceAsStream("/Res/PlayerImage/left.png"));
+            right = ImageIO.read(getClass().getResourceAsStream("/Res/PlayerImage/right.png"));
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -44,12 +49,11 @@ public class Player extends Entity {
        
    }
    private BufferedImage scaleImg(String imageName){
-       Tool tool = new Tool();
        BufferedImage image = null ;
-       String path = "/Resource/PlayerImage/" + imageName + ".png";
+       String path = "/Res/PlayerImage/" + imageName + ".png";
        try{
             image = ImageIO.read(getClass().getResourceAsStream(path));
-            image = tool.scaleImage(image, gamePanel.tileSize, gamePanel.tileSize);
+            image = Tool.scaleImage(image, gamePanel.tileSize, gamePanel.tileSize);
        }catch(IOException e){
            e.fillInStackTrace();
        }
@@ -57,24 +61,45 @@ public class Player extends Entity {
    }
    
    public void update(){
-       if(keyBoardInPut.getLeftPressed() == true || keyBoardInPut.getRightPressed() == true || keyBoardInPut.getSpacePressed() == true){
-           if(keyBoardInPut.getLeftPressed() == true){
-               direction = "left";
-               mapX -= speed;
-           }
-           if(keyBoardInPut.getRightPressed() == true){
-               direction = "right";
-               mapX += speed;
-           }
+       if(isJumping == false){
            if(keyBoardInPut.getSpacePressed() == true){
-               if(energy < 60) {
+           if(energy < 60) {
                    energy++;
+               }else{
+               isJumping = true;
+           }
+            }else {
+                if(keyBoardInPut.getLeftPressed() == true){
+                   direction = "left";
+                   mapX -= entityWalkSpeed;
+               }
+               if(keyBoardInPut.getRightPressed() == true){
+                   direction = "right";
+                   mapX += entityWalkSpeed;
+               }
+               if(keyBoardInPut.getUpPressed() == true){
+                   direction = "up";
                }
            }
        }
-           if(energy == 60 || keyBoardInPut.getSpacePressed() != true){
-               mapY -= energy;
-               energy = 0;
+           if(energy > 0 && keyBoardInPut.getSpacePressed() == false){
+               isJumping = true;
+           }
+           if(isJumping == true ){
+               switch(direction){
+                   case "left":
+                       mapX -= jumpSpeed;
+                       break;
+                   case "right":
+                       mapX += entityWalkSpeed;
+                       break;
+               }
+                   mapY -= jumpSpeed;
+                   energy -= 1.5;
+                   if(energy < 0){
+                       energy = 0;
+                       isJumping = false;
+                   }
            }
        
         spriteCounter++;
@@ -92,12 +117,25 @@ public class Player extends Entity {
    public void draw(Graphics g2){
        BufferedImage image = null;
        switch(direction){
+           case "up":
+               image = lastImage;
+               break;
            case "left":
                image = left;
+               lastImage = left;
+               break;
            case "right":
                image = right;
+               lastImage = right;
+               break;
        }
-       g2.drawImage(image, mapX, mapY,  null);
+       
+            g2.drawImage(image, mapX, mapY,  null);
+      
+   }
+   private boolean isGrounded(){
+       int bns;
+       return true;
    }
 }
 

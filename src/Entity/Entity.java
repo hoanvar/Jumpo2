@@ -6,7 +6,7 @@ import java.awt.image.BufferedImage;
 public class Entity {
     
     public int  mapX, mapY;
-    
+    public int entityWalkSpeed;
     
     public BufferedImage left, right;
     public String direction;
